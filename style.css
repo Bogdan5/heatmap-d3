@@ -1,6 +1,26 @@
+body{
+  font-family: Quicksand, sans-serif;
+}
 svg{
   display:block;
 }
-.svgLegend{
 
+.containerSVG g {
+  font-size: 14px;
+}
+
+.containerSVG>text{
+  font-size: 25px;
+}
+
+.svgLegend g text{
+  font-size: 12px;
+}
+
+.rectTooltip{
+  height: 50px;
+  width: 50px;
+  background-color: blue;
+  opacity: 0.7;
+  border-radius: 4px;
 }
