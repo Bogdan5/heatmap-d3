@@ -75,9 +75,31 @@ const graphDraw = (data) => {
     .call(yAxis);
 
   //legend
+  const legHeight = 30;
+  const numberColors = colorRange.length;
   const svgLegend = d3.select('body')
     .append('svg')
-    .attr('width', 100)
-    .attr('height', 50)
+    .attr('width', legHeight * numberColors)
+    .attr('height', legHeight * 2)
     .attr('class', 'svgLegend');
+
+  svgLegend.selectAll('rect')
+    .data(colorRange)
+    .enter()
+    .append('rect')
+    .attr('x', (d, i) => i * legHeight)
+    .attr('y', 0)
+    .attr('width', legHeight)
+    .attr('height', legHeight)
+    .style('fill', (d) => d);
+
+  let legendScale = d3.scaleBand();
+  legendScale.domain([2.8, 3.9, 5.0, 6.1, 7.2, 8.3, 9.5, 10.6, 11.7, 12.8])
+    .range([0, legHeight * (numberColors - 2)]);
+
+  //axis for legendScal
+  let legendAxis = d3.axisBottom(legendScale);
+  svgLegend.append('g')
+    .attr('transform', `translate(${legHeight}, ${legHeight})`)
+    .call(legendAxis);
 };
