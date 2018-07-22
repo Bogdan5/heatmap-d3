@@ -7,24 +7,14 @@ req.send();
 req.onload = () => {
   let monthDate;
   let dataJSON = JSON.parse(req.responseText);
-  let newData = dataJSON.monthlyVariance.reduce((acc, item) => {
-    monthDate = new Date('1999-01-07');
-    monthDate.setMonth(item.month - 1);
-    // console.log(monthDate);
-    return acc.concat({
-      ...item,
-      month_date: monthDate,
-    });
-  }, []);
-  console.log(newData);
-  graphDraw(newData);
+  graphDraw(dataJSON.monthlyVariance);
 };
 
 const graphDraw = (data) => {
   console.log(data);
   const w = 1052;
   const h = 600;
-  const margin = { left: 70, top: 30, right: 30, bottom: 30 };
+  const margin = { left: 100, top: 30, right: 30, bottom: 60 };
   const minYear = d3.min(data, (d) => d.year);
   const colorRange = ['#000066', '#0039e6', '#00ace6', '#80dfff', '#e6f9ff',
    '#ffffb3', ' #ffcc00', '#ffbf80', '#ff7733', '#ff3300', '#990000',
@@ -74,6 +64,15 @@ const graphDraw = (data) => {
     .attr('transform', `translate(${margin.left}, ${margin.top})`)
     .call(yAxis);
 
+  //appending the labels for the two axes
+  svg.append('text')
+    .attr('transform', `translate(${margin.left / 4}, ${h / 2 + margin.top}) rotate(-90)`)
+    .text('Months');
+  svg.append('text')
+    .attr('transform', `translate(${margin.left + w / 2},
+      ${h + margin.top + margin.bottom / 1.66})`)
+    .text('Years');
+
   //legend
   const legHeight = 30;
   const numberColors = colorRange.length;
@@ -81,8 +80,10 @@ const graphDraw = (data) => {
     .append('svg')
     .attr('width', legHeight * numberColors)
     .attr('height', legHeight * 2)
-    .attr('class', 'svgLegend');
+    .attr('class', 'svgLegend')
+    .attr('id', 'legend');
 
+  //elements of the legend
   svgLegend.selectAll('rect')
     .data(colorRange)
     .enter()
@@ -91,15 +92,31 @@ const graphDraw = (data) => {
     .attr('y', 0)
     .attr('width', legHeight)
     .attr('height', legHeight)
-    .style('fill', (d) => d);
+    .style('fill', (d) => d)
+    .style('stroke', 'black');
 
-  let legendScale = d3.scaleBand();
+  //two one pixel height rects to extend the scale left and right
+  svgLegend.append('rect')
+    .attr('x', 0)
+    .attr('y', legHeight)
+    .attr('height', 1)
+    .attr('width', legHeight)
+    .style('fill', 'black');
+  svgLegend.append('rect')
+    .attr('x', legHeight * (numberColors - 1))
+    .attr('y', legHeight)
+    .attr('height', 1)
+    .attr('width', legHeight)
+    .style('fill', 'black');
+
+  //scale for the legend
+  let legendScale = d3.scalePoint();
   legendScale.domain([2.8, 3.9, 5.0, 6.1, 7.2, 8.3, 9.5, 10.6, 11.7, 12.8])
     .range([0, legHeight * (numberColors - 2)]);
 
   //axis for legendScal
   let legendAxis = d3.axisBottom(legendScale);
   svgLegend.append('g')
-    .attr('transform', `translate(${legHeight}, ${legHeight})`)
+    .attr('transform', `translate(${legHeight - 1}, ${legHeight})`)
     .call(legendAxis);
 };
